@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	leveldb_admin "github.com/fwhat/leveldb-admin"
+	leveldb_admin "github.com/attson/leveldb-admin"
 	"github.com/syndtr/goleveldb/leveldb"
 	"os"
 )

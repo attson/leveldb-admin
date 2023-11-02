@@ -19,7 +19,7 @@ LEVEL_ADMIN_DEBUG  // 开启debug true
 package main
 
 import (
-	levelAdmin "github.com/fwhat/leveldb-admin"
+	levelAdmin "github.com/attson/leveldb-admin"
 	"github.com/syndtr/goleveldb/leveldb"
 )
 
@@ -46,7 +46,7 @@ func main() {
 package main
 
 import (
-    levelAdmin "github.com/fwhat/leveldb-admin"
+    levelAdmin "github.com/attson/leveldb-admin"
     "github.com/syndtr/goleveldb/leveldb"
     "net/http"
 )
@@ -85,4 +85,4 @@ docker run -d -e LEVEL_ADMIN_DEBUG=true -e LEVEL_ADMIN_ADDRESS=:4333 -p 4333:433
 
 ### 浏览器访问 http://127.0.0.1:4333/leveldb_admin/static/
 
-![demo](https://fwhat.github.io/level-db-admin/demo.png)
+![demo](https://attson.github.io/level-db-admin/demo.png)
