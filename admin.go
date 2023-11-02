@@ -3,6 +3,7 @@ package leveldb_admin
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/siddontang/go/hack"
 	"github.com/syndtr/goleveldb/leveldb"
 	"log"
 	"net"
@@ -24,11 +25,29 @@ const (
 	apiKeyUpdate = apiPrefix + "/db/key/update"
 )
 
+type Serializer interface {
+	Serialize(b []byte) string
+	Deserialize(s string) []byte
+}
+
+type defaultKeySerializer struct {
+}
+
+func (d defaultKeySerializer) Serialize(key []byte) string {
+	return string(key)
+}
+
+func (d defaultKeySerializer) Deserialize(key string) []byte {
+	return hack.Slice(key)
+}
+
 type LevelAdmin struct {
-	dbs     sync.Map
-	address string
-	debug   bool
-	mux     *http.ServeMux
+	dbs             sync.Map
+	address         string
+	debug           bool
+	mux             *http.ServeMux
+	keySerializer   Serializer
+	valueSerializer Serializer
 }
 
 var levelAdmin *LevelAdmin
@@ -37,7 +56,10 @@ var once sync.Once
 func GetLevelAdmin() *LevelAdmin {
 	if levelAdmin == nil {
 		once.Do(func() {
-			levelAdmin = &LevelAdmin{}
+			levelAdmin = &LevelAdmin{
+				keySerializer:   defaultKeySerializer{},
+				valueSerializer: defaultKeySerializer{},
+			}
 			levelAdmin.loadEnv()
 		})
 	}
@@ -50,6 +72,18 @@ func (l *LevelAdmin) Register(db *leveldb.DB, key string) *LevelAdmin {
 	levelAdmin.logInfo(fmt.Sprintf("add db register: %s, %p", key, db))
 
 	levelAdmin.dbs.Store(key, db)
+
+	return l
+}
+
+func (l *LevelAdmin) SetKeySerializer(keySerializer Serializer) *LevelAdmin {
+	l.keySerializer = keySerializer
+
+	return l
+}
+
+func (l *LevelAdmin) SetValueSerializer(valueSerializer Serializer) *LevelAdmin {
+	l.valueSerializer = valueSerializer
 
 	return l
 }

@@ -1,7 +1,6 @@
 package leveldb_admin
 
 import (
-	"github.com/siddontang/go/hack"
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/util"
 	"net/http"
@@ -46,23 +45,23 @@ func (l *LevelAdmin) apiKeys(writer http.ResponseWriter, request *http.Request) 
 	if load, ok := l.dbs.Load(db); ok {
 		db := load.(*leveldb.DB)
 
-		iter := db.NewIterator(util.BytesPrefix([]byte(prefix)), nil)
+		iter := db.NewIterator(util.BytesPrefix(l.keySerializer.Deserialize(prefix)), nil)
 		defer iter.Release()
 
 		if searchText != "" {
-			iter.Seek(hack.Slice(searchText))
+			iter.Seek(l.keySerializer.Deserialize(searchText))
 		}
 
 		for iter.Next() {
 			if len(res.Items) >= limit {
-				res.SearchText = string(iter.Key())
+				res.SearchText = l.keySerializer.Serialize(iter.Key())
 				res.IsPart = true
 
 				l.writeJson(writer, res)
 				return
 			}
 
-			res.Items = append(res.Items, string(iter.Key()))
+			res.Items = append(res.Items, l.keySerializer.Serialize(iter.Key()))
 		}
 
 		err := iter.Error()

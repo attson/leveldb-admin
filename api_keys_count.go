@@ -1,7 +1,6 @@
 package leveldb_admin
 
 import (
-	"github.com/siddontang/go/hack"
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/util"
 	"net/http"
@@ -31,11 +30,11 @@ func (l *LevelAdmin) apiKeysCount(writer http.ResponseWriter, request *http.Requ
 	if load, ok := l.dbs.Load(db); ok {
 		db := load.(*leveldb.DB)
 
-		iter := db.NewIterator(util.BytesPrefix([]byte(prefix)), nil)
+		iter := db.NewIterator(util.BytesPrefix(l.keySerializer.Deserialize(prefix)), nil)
 		defer iter.Release()
 
 		if searchText != "" {
-			iter.Seek(hack.Slice(searchText))
+			iter.Seek(l.keySerializer.Deserialize(searchText))
 		}
 
 		for iter.Next() {
@@ -44,7 +43,7 @@ func (l *LevelAdmin) apiKeysCount(writer http.ResponseWriter, request *http.Requ
 				res.IsTrue = false
 				goto end
 			default:
-				res.LastKey = string(iter.Key())
+				res.LastKey = l.keySerializer.Serialize(iter.Key())
 				res.Count++
 			}
 		}

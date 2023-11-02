@@ -1,7 +1,6 @@
 package leveldb_admin
 
 import (
-	"github.com/siddontang/go/hack"
 	"github.com/syndtr/goleveldb/leveldb"
 	"net/http"
 )
@@ -20,14 +19,14 @@ func (l *LevelAdmin) apiKeyInfo(writer http.ResponseWriter, request *http.Reques
 
 	if load, ok := l.dbs.Load(db); ok {
 		db := load.(*leveldb.DB)
-		value, err := db.Get(hack.Slice(key), nil)
+		value, err := db.Get(l.keySerializer.Deserialize(key), nil)
 
 		if err != nil {
 			l.writeError(writer, err)
 			return
 		}
 
-		l.writeJson(writer, &keyInfoRes{Value: string(value)})
+		l.writeJson(writer, &keyInfoRes{Value: l.valueSerializer.Serialize(value)})
 	} else {
 		http.NotFound(writer, request)
 	}
