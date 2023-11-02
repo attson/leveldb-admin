@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	levelAdmin "github.com/fwhat/leveldb-admin"
+	levelAdmin "github.com/attson/leveldb-admin"
 	"github.com/syndtr/goleveldb/leveldb"
 	"net/http"
 	"os"
